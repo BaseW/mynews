@@ -26,3 +26,4 @@ Node.js v16.13.2
 
 - Node.js
 - Selenium
+- TypeScript
