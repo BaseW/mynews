@@ -1,91 +1,101 @@
-import { Builder, Browser, By, until, WebDriver, WebElement } from "selenium-webdriver";
+import puppeteer, {Page, ElementHandle, JSHandle} from "puppeteer";
 
 const NPB_OFFICIAL_URL = 'https://npb.jp/';
-const NPB_OFFICIAL_TITLE = 'NPB.jp 日本野球機構';
-const SCORE_WRAPPER_CLASS_NAME = 'score_wrap';
-const GAME_ELEMENT_CLASS_NAME = 'score_box';
-const LEFT_TEAM_IMG_CLASS_NAME = 'logo_left';
-const RIGHT_TEAM_IMG_CLASS_NAME = 'logo_right';
-
-/**
- * Safari 用の driver をセットアップする
- * @returns {Promise<WebDriver>}
- */
-async function setupDriverForSafari(): Promise<WebDriver> {
-  const driver = await new Builder().forBrowser(Browser.SAFARI).build();
-  return driver;
-}
+const GAME_ELEMENT_WRAPPER_SELECTOR = '.score_box';
 
 /**
  * NPB 公式サイトへアクセスする
- * @param {WebDriver} driver
- * @returns {Promise<void>}
+ * @returns {Promise<Page>}
  */
-async function accessNPBOfficialSite(driver: WebDriver): Promise<void> {
-  await driver.get(NPB_OFFICIAL_URL);
+async function accessNPBOfficialSite(): Promise<Page> {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto(NPB_OFFICIAL_URL);
+  return page;
 }
 
 /**
- * タイトルがロードされるまで待機
- * @param {WebDriver} driver
- * @returns {Promise<void>}
+ * 試合要素のラッパー一覧取得
+ * @param {Page} page
+ * @returns {Promise<ElementHandle<Element>[] | null>}
  */
-async function waitUntilTitleLoaded(driver: WebDriver): Promise<void> {
-  await driver.wait(until.titleIs(NPB_OFFICIAL_TITLE), 3000);
-}
-
-/**
- * 試合一覧のラッパー要素の取得
- * @param {WebDriver} driver
- * @return {Promise<WebElement>}
- */
-async function getScoreContainer(driver: WebDriver): Promise<WebElement> {
-  const scoreContainer = await driver.findElement(By.className(SCORE_WRAPPER_CLASS_NAME));
-  return scoreContainer;
+async function getGameWrapperElements(page: Page): Promise<ElementHandle<Element>[] | null> {
+  const gameWrapperElements = await page.$$(GAME_ELEMENT_WRAPPER_SELECTOR);
+  if (gameWrapperElements && gameWrapperElements.length > 0) {
+    return gameWrapperElements;
+  }
+  return null;
 }
 
 /**
  * 試合要素の取得
- * @param {WebElement} scoreContainer
- * @returns {Promise<WebElement[]>}
+ * @param {ElementHandle<Element>} gameWrapperElement
+ * @returns {Promise<ElementHandle<Element>>}
  */
-async function getGameElements(scoreContainer: WebElement): Promise<WebElement[]> {
-  const gameElements = await scoreContainer.findElements(By.className(GAME_ELEMENT_CLASS_NAME));
-  return gameElements;
+async function getGameElement(gameWrapperElement: ElementHandle<Element>): Promise<ElementHandle<Element>> {
+  const children = [];
+  const properties = await gameWrapperElement.getProperties();
+  for (let property of properties.values()) {
+    const element = property.asElement();
+    if (element) {
+      children.push(element);
+    }
+  }
+  return children[0];
 }
 
 /**
- * 左側のチーム名取得
- * @param {WebElement} gameElement
- * @returns {Promise<string>}
+ * 画像のラッパー要素を取得
+ * @param {ElementHandle<Element>} gameWrapperElement
+ * @returns {Promise<ElementHandle<Element> | null>}
  */
-async function getLeftTeamName(gameElement: WebElement): Promise<string> {
-  try {
-    const leftTeamLogoImg = await gameElement.findElement(By.className(LEFT_TEAM_IMG_CLASS_NAME));
-    const leftTeamName = await leftTeamLogoImg.getAttribute('title');
-    return leftTeamName;
-  } catch (error) {
-    // console.log('unnecessary div');
-    // console.log(error);
-    return '';
+async function getImageWrapperElement(gameWrapperElement: ElementHandle<Element>): Promise<ElementHandle<Element> | null> {
+  const linkElements = await gameWrapperElement.$$('a');
+  if (linkElements && linkElements.length > 0) {
+    const linkElement = linkElements[0];
+    const divElements = await linkElement.$$('div');
+    if (divElements && divElements.length > 0) {
+      const targetWrapper = divElements[0];
+      return targetWrapper
+    } else {
+      return null;
+    }
+  } else {
+    return null;
   }
 }
 
 /**
- * 右側のチーム名取得
- * @param {WebElement} gameElement
- * @returns {Promise<string>}
+ * 2枚の画像取得
+ * @param {ElementHandle<Element>} imageWrapperElement
+ * @returns {Promise<ElementHandle<Element>[] | null>}
  */
-async function getRightTeamName(gameElement: WebElement): Promise<string> {
+async function getTeamImages(imageWrapperElement: ElementHandle<Element>): Promise<ElementHandle<Element>[] | null> {
+  const images = await imageWrapperElement.$$('img');
+  if (images && images.length > 0) {
+    return images;
+  }
+  return null
+}
+
+/**
+ * 2つのチーム名取得
+ * @param {ElementHandle<Element>} imageWrapperElement
+ * @returns {Promise<string[]>}
+ */
+async function getTeamNames(imageWrapperElement: ElementHandle<Element>): Promise<string[]> {
   try {
-    const rightTeamLogoImg = await gameElement.findElement(By.className(RIGHT_TEAM_IMG_CLASS_NAME));
-    const rightTeamName = await rightTeamLogoImg.getAttribute('title');
-    return rightTeamName;
+    const images = await getTeamImages(imageWrapperElement);
+    if (images) {
+      const leftTeamName: string = await (await images[0].getProperty('title')).jsonValue();
+      const rightTeamName: string = await (await images[1].getProperty('title')).jsonValue();
+      return [leftTeamName, rightTeamName];
+    }
   } catch (error) {
     // console.log('unnecessary div');
     // console.log(error);
-    return '';
   }
+  return [];
 }
 
 /**
@@ -102,45 +112,46 @@ async function printGameInfo(leftTeamName: string, rightTeamName: string): Promi
 
 /**
  * 結果の出力
- * @param {WebElement[]} gameElements
+ * @param {ElementHandle<Element>} imageWrapperElement
  * @returns {Promise<void>}
  */
-async function printResult(gameElements: WebElement[]): Promise<void> {
-  for (let i = 0; i < gameElements.length; i++) {
-    const gameElement = gameElements[i];
-    const leftTeamName = await getLeftTeamName(gameElement);
-    const rightTeamName = await getRightTeamName(gameElement);
-    printGameInfo(leftTeamName, rightTeamName);
-  }
+async function printResult(imageWrapperElement: ElementHandle<Element>): Promise<void> {
+  const [leftTeamName, rightTeamName] = await getTeamNames(imageWrapperElement);
+  printGameInfo(leftTeamName, rightTeamName);
 }
 
 /**
  * スクレイピングの終了
- * @param {WebDriver} driver
+ * @param {Page} page
  * @returns {Promise<void>}
  */
-async function finishScraping(driver: WebDriver): Promise<void> {
-  await driver.quit();
+async function finishScraping(page: Page): Promise<void> {
+  await page.close();
 }
 
 /**
  * メイン関数
  */
 async function main() {
-  let driver = await setupDriverForSafari();
+  const page = await accessNPBOfficialSite();
   try {
-    await accessNPBOfficialSite(driver);
-    await waitUntilTitleLoaded(driver);
-    const scoreContainer = await getScoreContainer(driver);
-    const gameElements = await getGameElements(scoreContainer);
-    await printResult(gameElements);
+    const gameWrapperElements = await getGameWrapperElements(page);
+    if (gameWrapperElements) {
+      for (let wrapperElement of gameWrapperElements) {
+        const imageWrapperElement = await getImageWrapperElement(wrapperElement);
+        if (imageWrapperElement) {
+          await printResult(imageWrapperElement);
+        }
+      }
+    }
   } catch (error) {
     console.log(error);
   } finally {
-    await finishScraping(driver);
+    await finishScraping(page);
   }
 }
 
 (async () => {
   await main();
+  process.exit(0);
 })();
