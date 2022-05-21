@@ -7,6 +7,7 @@
   "author": "wada <wada@avita.co.jp>",
   "license": "Apache-2.0",
   "dependencies": {
+    "puppeteer": "^14.1.1",
     "selenium-webdriver": "^4.1.2"
   },
   "devDependencies": {
