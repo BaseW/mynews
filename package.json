@@ -1,0 +1,9 @@
+{
+  "name": "mynews",
+  "version": "0.1.0",
+  "description": "mynews",
+  "main": "index.js",
+  "repository": "git@github.com:BaseW/mynews.git",
+  "author": "wada <wada@avita.co.jp>",
+  "license": "Apache-2.0"
+}
