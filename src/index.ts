@@ -123,7 +123,10 @@ async function finishScraping(driver: WebDriver): Promise<void> {
   await driver.quit();
 }
 
-(async function main() {
+/**
+ * メイン関数
+ */
+async function main() {
   let driver = await setupDriverForSafari();
   try {
     await accessNPBOfficialSite(driver);
@@ -136,4 +139,8 @@ async function finishScraping(driver: WebDriver): Promise<void> {
   } finally {
     await finishScraping(driver);
   }
+}
+
+(async () => {
+  await main();
 })();
