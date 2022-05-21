@@ -42,6 +42,9 @@ async function finishScraping(driver) {
   try {
     await accessNPBOfficialSite(driver);
     await waitUntilTitleLoaded(driver);
+    // TODO: get header element
+    // TODO: get games
+    // TODO: print result
   } finally {
     await finishScraping(driver);
   }
