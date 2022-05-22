@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import * as puppeteer from "puppeteer";
 import {Page, ElementHandle} from "puppeteer";
-import { GameInfo, ParsedScoreInfo, ResultType } from "./types";
+import {GameInfo, ParsedScoreInfo, ResultType} from "./types";
 
 const NPB_OFFICIAL_URL = "https://npb.jp/";
 const DATE_ELEMENT_WRAPPER_SELECTOR = ".date";
@@ -24,7 +24,7 @@ async function accessNPBOfficialSite(): Promise<Page> {
 /**
  * 日付要素のラッパー取得
  * @param {Page} page
- * @returns {Promise<ElementHandle<Element> | null>}
+ * @return {Promise<ElementHandle<Element> | null>}
  */
 async function getDateWrapperElement(page: Page): Promise<ElementHandle<Element> | null> {
   const dateWrapperElements = await page.$$(DATE_ELEMENT_WRAPPER_SELECTOR);
@@ -73,7 +73,7 @@ async function getImageWrapperElement(
 /**
  * 日付情報の取得
  * @param {ElementHandle<Element>} dateWrapperElement
- * @returns {Promise<string>}
+ * @return {Promise<string>}
  */
 async function getDateInfo(dateWrapperElement: ElementHandle<Element>): Promise<string> {
   const divElements = await dateWrapperElement.$$("div");
@@ -122,7 +122,7 @@ async function getTeamNames(imageWrapperElement: ElementHandle<Element>): Promis
 /**
  * スコア情報の取得
  * @param {ElementHandle<Element>} imageWrapperElement
- * @returns {Promise<string>}
+ * @return {Promise<string>}
  */
 async function getScoreInfo(imageWrapperElement: ElementHandle<Element>): Promise<string> {
   const scoreElement = await imageWrapperElement.$(SCORE_ELEMENT_SELECTOR);
@@ -136,7 +136,7 @@ async function getScoreInfo(imageWrapperElement: ElementHandle<Element>): Promis
 /**
  * 詳細情報の取得
  * @param {ElementHandle<Element>} imageWrapperElement
- * @returns {Promise<string>}
+ * @return {Promise<string>}
  */
 async function getStateInfo(imageWrapperElement: ElementHandle<Element>): Promise<string> {
   const stateElement = await imageWrapperElement.$(STATE_ELEMENT_SELECTOR);
@@ -150,7 +150,7 @@ async function getStateInfo(imageWrapperElement: ElementHandle<Element>): Promis
 /**
  * スコアの解析
  * @param {string} scoreInfo
- * @returns {ParsedScoreInfo}
+ * @return {ParsedScoreInfo}
  */
 function parseScoreInfo(scoreInfo: string): ParsedScoreInfo {
   const scoreSplitted = scoreInfo.split("-");
@@ -158,7 +158,7 @@ function parseScoreInfo(scoreInfo: string): ParsedScoreInfo {
   const rightTeamScore = scoreSplitted[1];
   const parsedScoreInfo: ParsedScoreInfo = {
     leftTeamScore,
-    rightTeamScore
+    rightTeamScore,
   };
   return parsedScoreInfo;
 }
@@ -171,7 +171,7 @@ function parseScoreInfo(scoreInfo: string): ParsedScoreInfo {
 async function getGameInfo(imageWrapperElement: ElementHandle<Element>): Promise<GameInfo> {
   const [leftTeamName, rightTeamName] = await getTeamNames(imageWrapperElement);
   const scoreInfo = await getScoreInfo(imageWrapperElement);
-  const { leftTeamScore, rightTeamScore } = await parseScoreInfo(scoreInfo);
+  const {leftTeamScore, rightTeamScore} = await parseScoreInfo(scoreInfo);
   const gameStateInfo = await getStateInfo(imageWrapperElement);
   const gameInfo: GameInfo = {
     leftTeamName,
@@ -179,7 +179,7 @@ async function getGameInfo(imageWrapperElement: ElementHandle<Element>): Promise
     leftTeamScore,
     rightTeamScore,
     gameStateInfo,
-  }
+  };
   return gameInfo;
 }
 
