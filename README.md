@@ -53,6 +53,24 @@ $ clasp push
 
 [参考](https://github.com/google/clasp)
 
+#### gcloud CLI
+
+[ここ](https://cloud.google.com/sdk/docs/install-sdk?hl=ja)から gcloud CLI をダウンロードし、初期化する
+
+```shell
+$ gcloud init
+```
+
+`.gcloudignore` でデプロイしないファイルを指定
+
+以下でデプロイ
+
+```shell
+$ gcloud functions deploy scrapingNPB --runtime=nodejs16 \
+  --trigger-http --region=asia-northeast1 \
+  --entry-point=lib/index.js
+```
+
 ## 開発環境
 
 Node.js v16.13.2
