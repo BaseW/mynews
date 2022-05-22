@@ -1,5 +1,6 @@
 const FIREBASE_FUNCTIONS_URL = "https://asia-northeast1-quickstart-1587635856027.cloudfunctions.net/scrapingNPB"
 const SLACK_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty("SLACK_WEBHOOK_URL");;
+const MY_USER_ID = PropertiesService.getScriptProperties().getProperty("SLACK_USER_ID");;
 
 export type ResultType = {
   dateInfo: string;
@@ -40,7 +41,8 @@ function organizeGameInfo(fetchedResult: ResultType): string {
     dateInfo,
     gameInfoList,
   } = fetchedResult;
-  let organizedGameInfo = `${dateInfo}\n`;
+  const mentionToMe = `<@${MY_USER_ID}>\n`
+  let organizedGameInfo = `${mentionToMe}${dateInfo}\n`;
   console.log(gameInfoList);
   for (let i = 0; i < gameInfoList.length; i ++) {
     const gameInfo: GameInfo = gameInfoList[i];
