@@ -4,6 +4,7 @@ import {Page, ElementHandle} from "puppeteer";
 
 const NPB_OFFICIAL_URL = "https://npb.jp/";
 const GAME_ELEMENT_WRAPPER_SELECTOR = ".score_box";
+const FUNCTION_REGION = "asia-northeast1";
 
 /**
  * NPB 公式サイトへアクセスする
@@ -146,7 +147,8 @@ async function main() {
   }
 }
 
-export const scrapingNPB = functions.https.onRequest(async (request, response) => {
-  const result = await main();
-  response.send(result);
-});
+export const scrapingNPB = functions.region(FUNCTION_REGION)
+    .https.onRequest(async (request, response) => {
+      const result = await main();
+      response.send(result);
+    });
