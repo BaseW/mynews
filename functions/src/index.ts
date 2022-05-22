@@ -2,12 +2,12 @@ import * as functions from "firebase-functions";
 import * as puppeteer from "puppeteer";
 import {Page, ElementHandle} from "puppeteer";
 
-const NPB_OFFICIAL_URL = 'https://npb.jp/';
-const GAME_ELEMENT_WRAPPER_SELECTOR = '.score_box';
+const NPB_OFFICIAL_URL = "https://npb.jp/";
+const GAME_ELEMENT_WRAPPER_SELECTOR = ".score_box";
 
 /**
  * NPB 公式サイトへアクセスする
- * @returns {Promise<Page>}
+ * @return {Promise<Page>}
  */
 async function accessNPBOfficialSite(): Promise<Page> {
   const browser = await puppeteer.launch();
@@ -19,7 +19,7 @@ async function accessNPBOfficialSite(): Promise<Page> {
 /**
  * 試合要素のラッパー一覧取得
  * @param {Page} page
- * @returns {Promise<ElementHandle<Element>[] | null>}
+ * @return {Promise<ElementHandle<Element>[] | null>}
  */
 async function getGameWrapperElements(page: Page): Promise<ElementHandle<Element>[] | null> {
   const gameWrapperElements = await page.$$(GAME_ELEMENT_WRAPPER_SELECTOR);
@@ -32,16 +32,18 @@ async function getGameWrapperElements(page: Page): Promise<ElementHandle<Element
 /**
  * 画像のラッパー要素を取得
  * @param {ElementHandle<Element>} gameWrapperElement
- * @returns {Promise<ElementHandle<Element> | null>}
+ * @return {Promise<ElementHandle<Element> | null>}
  */
-async function getImageWrapperElement(gameWrapperElement: ElementHandle<Element>): Promise<ElementHandle<Element> | null> {
-  const linkElements = await gameWrapperElement.$$('a');
+async function getImageWrapperElement(
+    gameWrapperElement: ElementHandle<Element>
+): Promise<ElementHandle<Element> | null> {
+  const linkElements = await gameWrapperElement.$$("a");
   if (linkElements && linkElements.length > 0) {
     const linkElement = linkElements[0];
-    const divElements = await linkElement.$$('div');
+    const divElements = await linkElement.$$("div");
     if (divElements && divElements.length > 0) {
       const targetWrapper = divElements[0];
-      return targetWrapper
+      return targetWrapper;
     } else {
       return null;
     }
@@ -53,27 +55,27 @@ async function getImageWrapperElement(gameWrapperElement: ElementHandle<Element>
 /**
  * 2枚の画像取得
  * @param {ElementHandle<Element>} imageWrapperElement
- * @returns {Promise<ElementHandle<Element>[] | null>}
+ * @return {Promise<ElementHandle<Element>[] | null>}
  */
 async function getTeamImages(imageWrapperElement: ElementHandle<Element>): Promise<ElementHandle<Element>[] | null> {
-  const images = await imageWrapperElement.$$('img');
+  const images = await imageWrapperElement.$$("img");
   if (images && images.length > 0) {
     return images;
   }
-  return null
+  return null;
 }
 
 /**
  * 2つのチーム名取得
  * @param {ElementHandle<Element>} imageWrapperElement
- * @returns {Promise<string[]>}
+ * @return {Promise<string[]>}
  */
 async function getTeamNames(imageWrapperElement: ElementHandle<Element>): Promise<string[]> {
   try {
     const images = await getTeamImages(imageWrapperElement);
     if (images) {
-      const leftTeamName: string = await (await images[0].getProperty('title')).jsonValue();
-      const rightTeamName: string = await (await images[1].getProperty('title')).jsonValue();
+      const leftTeamName: string = await (await images[0].getProperty("title")).jsonValue();
+      const rightTeamName: string = await (await images[1].getProperty("title")).jsonValue();
       return [leftTeamName, rightTeamName];
     }
   } catch (error) {
@@ -87,7 +89,7 @@ async function getTeamNames(imageWrapperElement: ElementHandle<Element>): Promis
  * 試合内容の出力
  * @param {string} leftTeamName
  * @param {string} rightTeamName
- * @returns {Promise<string>}
+ * @return {Promise<string>}
  */
 async function printGameInfo(leftTeamName: string, rightTeamName: string): Promise<string> {
   if (leftTeamName && rightTeamName) {
@@ -95,13 +97,13 @@ async function printGameInfo(leftTeamName: string, rightTeamName: string): Promi
     console.log(gameInfo);
     return gameInfo;
   }
-  return '';
+  return "";
 }
 
 /**
  * 結果の出力
  * @param {ElementHandle<Element>} imageWrapperElement
- * @returns {Promise<string>}
+ * @return {Promise<string>}
  */
 async function printResult(imageWrapperElement: ElementHandle<Element>): Promise<string> {
   const [leftTeamName, rightTeamName] = await getTeamNames(imageWrapperElement);
@@ -112,7 +114,7 @@ async function printResult(imageWrapperElement: ElementHandle<Element>): Promise
 /**
  * スクレイピングの終了
  * @param {Page} page
- * @returns {Promise<void>}
+ * @return {Promise<void>}
  */
 async function finishScraping(page: Page): Promise<void> {
   await page.close();
@@ -122,12 +124,12 @@ async function finishScraping(page: Page): Promise<void> {
  * メイン関数
  */
 async function main() {
-  let result = '';
+  let result = "";
   const page = await accessNPBOfficialSite();
   try {
     const gameWrapperElements = await getGameWrapperElements(page);
     if (gameWrapperElements) {
-      for (let wrapperElement of gameWrapperElements) {
+      for (const wrapperElement of gameWrapperElements) {
         const imageWrapperElement = await getImageWrapperElement(wrapperElement);
         if (imageWrapperElement) {
           const gameInfo = await printResult(imageWrapperElement);
@@ -135,11 +137,12 @@ async function main() {
         }
       }
     }
+    return result;
   } catch (error) {
     console.log(error);
+    return result;
   } finally {
     await finishScraping(page);
-    return result;
   }
 }
 
