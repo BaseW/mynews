@@ -80,7 +80,7 @@ async function getDateInfo(dateWrapperElement: ElementHandle<Element>): Promise<
     console.log("found date element");
     const targetElement = await divElements[0].asElement();
     const dateInfo = await (await targetElement?.getProperty("innerText"))?.jsonValue();
-    return `${dateInfo}`;
+    return `${dateInfo}`.replace("\n", " ");
   }
   return "";
 }
@@ -150,13 +150,35 @@ async function getStateInfo(imageWrapperElement: ElementHandle<Element>): Promis
  * 試合内容の出力
  * @param {string} leftTeamName
  * @param {string} rightTeamName
+ * @param {string} scoreInfo
+ * @param {string} stateInfo
  * @return {Promise<string>}
  */
-async function organizeGameInfo(leftTeamName: string, rightTeamName: string): Promise<string> {
+async function organizeGameInfo(
+  leftTeamName: string,
+  rightTeamName: string,
+  scoreInfo: string,
+  stateInfo: string,
+): Promise<string> {
   if (leftTeamName && rightTeamName) {
-    const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
-    console.log(gameInfo);
-    return gameInfo;
+    if (scoreInfo) {
+      const scoreSplitted = scoreInfo.split("-");
+      const leftTeamScore = scoreSplitted[0];
+      const rightTeamScore = scoreSplitted[1];
+      const gameInfo = `${leftTeamName} ${leftTeamScore} - ${rightTeamScore} ${rightTeamName}`;
+      if (stateInfo) {
+        return gameInfo + stateInfo;
+      }
+      console.log(gameInfo);
+      return gameInfo;
+    } else {
+      const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
+      console.log(gameInfo);
+      if (stateInfo) {
+        return gameInfo + stateInfo;
+      }
+      return gameInfo;
+    }
   }
   return "";
 }
@@ -169,10 +191,8 @@ async function organizeGameInfo(leftTeamName: string, rightTeamName: string): Pr
 async function getGameInfo(imageWrapperElement: ElementHandle<Element>): Promise<string> {
   const [leftTeamName, rightTeamName] = await getTeamNames(imageWrapperElement);
   const scoreInfo = await getScoreInfo(imageWrapperElement);
-  console.log(scoreInfo);
   const stateInfo = await getStateInfo(imageWrapperElement);
-  console.log(stateInfo)
-  const gameInfo = organizeGameInfo(leftTeamName, rightTeamName);
+  const gameInfo = organizeGameInfo(leftTeamName, rightTeamName, scoreInfo, stateInfo);
   return gameInfo;
 }
 
