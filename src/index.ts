@@ -1,6 +1,8 @@
-const FIREBASE_FUNCTIONS_URL = "https://asia-northeast1-quickstart-1587635856027.cloudfunctions.net/scrapingNPB"
-const SLACK_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty("SLACK_WEBHOOK_URL");;
-const MY_USER_ID = PropertiesService.getScriptProperties().getProperty("SLACK_USER_ID");;
+const FIREBASE_FUNCTIONS_URL = "https://asia-northeast1-quickstart-1587635856027.cloudfunctions.net/scrapingNPB";
+const SLACK_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty("SLACK_WEBHOOK_URL");
+const SLACK_USER_ID = PropertiesService.getScriptProperties().getProperty("SLACK_USER_ID");
+const LINE_CHANNEL_ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN");
+const LINE_USER_ID = PropertiesService.getScriptProperties().getProperty("LINE_USER_ID");
 
 type ResultType = {
   dateInfo: string;
@@ -61,7 +63,7 @@ function organizeGameInfo(fetchedResult: ResultType): SlackPayloadType {
     type: "section",
     text: {
       type: "mrkdwn",
-      text: `<@${MY_USER_ID}>\n\n`
+      text: `<@${SLACK_USER_ID}>\n\n`
     }
   };
   payload.blocks.push(mentionBlockInfo);
@@ -135,6 +137,79 @@ function postToSlack(organizedGameInfo: SlackPayloadType) {
   };
   const response = UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
   console.log(response);
+}
+
+/**
+ * LINE 用のメッセージ整形
+ * @param {ResultType} fetchedResult
+ * @returns {string}
+ */
+function organizeGameInfoForLine(fetchedResult: ResultType): string {
+  const {
+    dateInfo,
+    gameInfoList,
+  } = fetchedResult;
+  let organizedGameInfoForLine = '';
+  organizedGameInfoForLine += `${dateInfo}\n\n`;
+
+  for (let i = 0; i < gameInfoList.length; i ++) {
+    const gameInfo: GameInfo = gameInfoList[i];
+    const {
+      leftTeamName,
+      rightTeamName,
+      leftTeamScore,
+      rightTeamScore,
+      gameStateInfo
+    } = gameInfo;
+    if (leftTeamName && rightTeamName) {
+      if (leftTeamScore && rightTeamScore) {
+        const gameInfo = `${leftTeamName} ${leftTeamScore} - ${rightTeamScore} ${rightTeamName}`;
+        if (gameStateInfo) {
+          organizedGameInfoForLine += `• ${gameInfo + "\n" + gameStateInfo + "\n\n"}`
+        }
+      } else {
+        const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
+        if (gameStateInfo) {
+          organizedGameInfoForLine += `• ${gameInfo + "\n" + gameStateInfo + "\n\n"}`
+        }
+        organizedGameInfoForLine += `• ${gameInfo + "\n\n"}`
+      }
+    }
+  }
+  return organizedGameInfoForLine;
+}
+
+/**
+ * LINE への通知
+ */
+function postToLINE() {
+  try {
+    const gameInfo = getGameInfo();
+    console.log(gameInfo);
+    const organizedGameInfoForLine = organizeGameInfoForLine(gameInfo);
+    console.log(organizedGameInfoForLine);
+    // LINE Messaging APIの利用のための下準備
+    const url = 'https://api.line.me/v2/bot/message/push';
+    // メッセージ本文を格納する変数
+    const body = organizedGameInfoForLine;
+
+    UrlFetchApp.fetch(url, {
+      'headers': {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ' + LINE_CHANNEL_ACCESS_TOKEN,
+      },
+      'method': 'POST',
+      'payload': JSON.stringify({
+          'to': LINE_USER_ID,
+          'messages': [{
+              'type': 'text',
+              'text': body,
+          }]
+      })
+    })
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 /**
