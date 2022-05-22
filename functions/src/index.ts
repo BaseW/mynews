@@ -3,6 +3,7 @@ import * as puppeteer from "puppeteer";
 import {Page, ElementHandle} from "puppeteer";
 
 const NPB_OFFICIAL_URL = "https://npb.jp/";
+const DATE_ELEMENT_WRAPPER_SELECTOR = ".date";
 const GAME_ELEMENT_WRAPPER_SELECTOR = ".score_box";
 const FUNCTION_REGION = "asia-northeast1";
 
@@ -15,6 +16,19 @@ async function accessNPBOfficialSite(): Promise<Page> {
   const page = await browser.newPage();
   await page.goto(NPB_OFFICIAL_URL);
   return page;
+}
+
+/**
+ * 日付要素のラッパー取得
+ * @param {Page} page
+ * @returns {Promise<ElementHandle<Element> | null>}
+ */
+async function getDateWrapperElement(page: Page): Promise<ElementHandle<Element> | null> {
+  const dateWrapperElements = await page.$$(DATE_ELEMENT_WRAPPER_SELECTOR);
+  if (dateWrapperElements && dateWrapperElements.length > 0) {
+    return dateWrapperElements[0];
+  }
+  return null;
 }
 
 /**
@@ -55,14 +69,15 @@ async function getImageWrapperElement(
 
 /**
  * 日付情報の取得
- * @param {ElementHandle<Element>} imageWrapperElement
+ * @param {ElementHandle<Element>} dateWrapperElement
  * @returns {string}
  */
-async function getDateInfo(imageWrapperElement: ElementHandle<Element>) {
-  const divElements = await imageWrapperElement.$$("div");
+async function getDateInfo(dateWrapperElement: ElementHandle<Element>) {
+  const divElements = await dateWrapperElement.$$("div");
   if (divElements && divElements.length > 0) {
-    const targetElement = divElements[0];
-    const dateInfo: string = await targetElement.jsonValue();
+    console.log("found date element");
+    const targetElement = await divElements[0].asElement();
+    const dateInfo = await (await targetElement?.getProperty("innerText"))?.jsonValue();
     return dateInfo;
   }
   return "";
@@ -143,15 +158,20 @@ async function main() {
   let result = "";
   const page = await accessNPBOfficialSite();
   try {
+    const dateWrapperElement = await getDateWrapperElement(page);
+    if (dateWrapperElement) {
+      const dateInfo = await getDateInfo(dateWrapperElement);
+      console.log(dateInfo);
+      if (dateInfo) {
+        result = `${dateInfo}\n${result}`;
+      }
+    }
+
     const gameWrapperElements = await getGameWrapperElements(page);
     if (gameWrapperElements) {
       for (const wrapperElement of gameWrapperElements) {
         const imageWrapperElement = await getImageWrapperElement(wrapperElement);
         if (imageWrapperElement) {
-          const dateInfo = await getDateInfo(imageWrapperElement);
-          if (dateInfo) {
-            result = `${dateInfo}\n${result}`;
-          }
           const gameInfo = await getGameInfo(imageWrapperElement);
           result += `\n${gameInfo}`;
         }
