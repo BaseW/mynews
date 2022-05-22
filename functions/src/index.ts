@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import * as puppeteer from "puppeteer";
 import {Page, ElementHandle} from "puppeteer";
+import { GameInfo, ParsedScoreInfo, ResultType } from "./types";
 
 const NPB_OFFICIAL_URL = "https://npb.jp/";
 const DATE_ELEMENT_WRAPPER_SELECTOR = ".date";
@@ -147,52 +148,38 @@ async function getStateInfo(imageWrapperElement: ElementHandle<Element>): Promis
 }
 
 /**
- * 試合内容の出力
- * @param {string} leftTeamName
- * @param {string} rightTeamName
+ * スコアの解析
  * @param {string} scoreInfo
- * @param {string} stateInfo
- * @return {Promise<string>}
+ * @returns {ParsedScoreInfo}
  */
-async function organizeGameInfo(
-  leftTeamName: string,
-  rightTeamName: string,
-  scoreInfo: string,
-  stateInfo: string,
-): Promise<string> {
-  if (leftTeamName && rightTeamName) {
-    if (scoreInfo) {
-      const scoreSplitted = scoreInfo.split("-");
-      const leftTeamScore = scoreSplitted[0];
-      const rightTeamScore = scoreSplitted[1];
-      const gameInfo = `${leftTeamName} ${leftTeamScore} - ${rightTeamScore} ${rightTeamName}`;
-      if (stateInfo) {
-        return gameInfo + stateInfo;
-      }
-      console.log(gameInfo);
-      return gameInfo;
-    } else {
-      const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
-      console.log(gameInfo);
-      if (stateInfo) {
-        return gameInfo + stateInfo;
-      }
-      return gameInfo;
-    }
-  }
-  return "";
+function parseScoreInfo(scoreInfo: string): ParsedScoreInfo {
+  const scoreSplitted = scoreInfo.split("-");
+  const leftTeamScore = scoreSplitted[0];
+  const rightTeamScore = scoreSplitted[1];
+  const parsedScoreInfo: ParsedScoreInfo = {
+    leftTeamScore,
+    rightTeamScore
+  };
+  return parsedScoreInfo;
 }
 
 /**
  * 結果の出力
  * @param {ElementHandle<Element>} imageWrapperElement
- * @return {Promise<string>}
+ * @return {Promise<GameInfo>}
  */
-async function getGameInfo(imageWrapperElement: ElementHandle<Element>): Promise<string> {
+async function getGameInfo(imageWrapperElement: ElementHandle<Element>): Promise<GameInfo> {
   const [leftTeamName, rightTeamName] = await getTeamNames(imageWrapperElement);
   const scoreInfo = await getScoreInfo(imageWrapperElement);
-  const stateInfo = await getStateInfo(imageWrapperElement);
-  const gameInfo = organizeGameInfo(leftTeamName, rightTeamName, scoreInfo, stateInfo);
+  const { leftTeamScore, rightTeamScore } = await parseScoreInfo(scoreInfo);
+  const gameStateInfo = await getStateInfo(imageWrapperElement);
+  const gameInfo: GameInfo = {
+    leftTeamName,
+    rightTeamName,
+    leftTeamScore,
+    rightTeamScore,
+    gameStateInfo,
+  }
   return gameInfo;
 }
 
@@ -209,15 +196,17 @@ async function finishScraping(page: Page): Promise<void> {
  * メイン関数
  */
 async function main() {
-  let result = "";
+  const result: ResultType = {
+    dateInfo: "",
+    gameInfoList: [],
+  };
   const page = await accessNPBOfficialSite();
   try {
     const dateWrapperElement = await getDateWrapperElement(page);
     if (dateWrapperElement) {
       const dateInfo = await getDateInfo(dateWrapperElement);
-      console.log(dateInfo);
       if (dateInfo) {
-        result = `${dateInfo}\n${result}`;
+        result.dateInfo = dateInfo;
       }
     }
 
@@ -227,7 +216,7 @@ async function main() {
         const imageWrapperElement = await getImageWrapperElement(wrapperElement);
         if (imageWrapperElement) {
           const gameInfo = await getGameInfo(imageWrapperElement);
-          result += `\n${gameInfo}`;
+          result.gameInfoList.push(gameInfo);
         }
       }
     }
