@@ -71,6 +71,23 @@ $ gcloud functions deploy scrapingNPB --runtime=nodejs16 \
   --entry-point=lib/index.js
 ```
 
+
+#### Firebase CLI
+
+[ここ](https://firebase.google.com/docs/cli)から CLI をインストール
+
+インストール後、以下でログイン
+
+```shell
+$ firebase login
+```
+
+以下で初期化
+
+```shell
+$ firebase init
+```
+
 ## 開発環境
 
 Node.js v16.13.2
