@@ -2,12 +2,12 @@ const FIREBASE_FUNCTIONS_URL = "https://asia-northeast1-quickstart-1587635856027
 const SLACK_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty("SLACK_WEBHOOK_URL");;
 const MY_USER_ID = PropertiesService.getScriptProperties().getProperty("SLACK_USER_ID");;
 
-export type ResultType = {
+type ResultType = {
   dateInfo: string;
   gameInfoList: GameInfo[];
 }
 
-export type GameInfo = {
+type GameInfo = {
   leftTeamName: string;
   rightTeamName: string;
   leftTeamScore: string;
@@ -15,11 +15,24 @@ export type GameInfo = {
   gameStateInfo: string;
 }
 
-export type ParsedScoreInfo = {
+type ParsedScoreInfo = {
   leftTeamScore: string;
   rightTeamScore: string;
 }
 
+type SlackTextInfo = {
+  type: string;
+  text: string;
+}
+
+type SlackBlockInfo = {
+  type: string;
+  text: SlackTextInfo;
+}
+
+type SlackPayloadType = {
+  blocks: SlackBlockInfo[];
+}
 
 /**
  * 試合情報の取得
@@ -34,16 +47,34 @@ function getGameInfo(): ResultType {
 /**
  * 試合情報の整理
  * @param {ResultType} fetchedResult
- * @returns {string}
+ * @returns {SlackPayloadType}
  */
-function organizeGameInfo(fetchedResult: ResultType): string {
+function organizeGameInfo(fetchedResult: ResultType): SlackPayloadType {
   const {
     dateInfo,
     gameInfoList,
   } = fetchedResult;
-  const mentionToMe = `<@${MY_USER_ID}>\n`
-  let organizedGameInfo = `${mentionToMe}${dateInfo}\n`;
-  console.log(gameInfoList);
+  const payload: SlackPayloadType = {
+    blocks: []
+  }
+  const mentionBlockInfo: SlackBlockInfo = {
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: `<@${MY_USER_ID}>\n\n`
+    }
+  };
+  payload.blocks.push(mentionBlockInfo);
+
+  const dateBlockInfo: SlackBlockInfo = {
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: `${dateInfo}\n\n`
+    }
+  }
+  payload.blocks.push(dateBlockInfo);
+
   for (let i = 0; i < gameInfoList.length; i ++) {
     const gameInfo: GameInfo = gameInfoList[i];
     const {
@@ -57,33 +88,50 @@ function organizeGameInfo(fetchedResult: ResultType): string {
       if (leftTeamScore && rightTeamScore) {
         const gameInfo = `${leftTeamName} ${leftTeamScore} - ${rightTeamScore} ${rightTeamName}`;
         if (gameStateInfo) {
-          organizedGameInfo += gameInfo + gameStateInfo;
+          const gameBlockInfo: SlackBlockInfo = {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `• ${gameInfo + "\n" + gameStateInfo + "\n"}`
+            }
+          };
+          payload.blocks.push(gameBlockInfo);
         }
       } else {
         const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
         if (gameStateInfo) {
-          organizedGameInfo += gameInfo + gameStateInfo;
+          const gameBlockInfo: SlackBlockInfo = {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `• ${gameInfo + "\n" + gameStateInfo + "\n"}`
+            }
+          };
+          payload.blocks.push(gameBlockInfo);
         }
-        organizedGameInfo += gameInfo;
+        const gameBlockInfo: SlackBlockInfo = {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `• ${gameInfo + "\n"}`
+          }
+        };
+        payload.blocks.push(gameBlockInfo);
       }
     }
-    organizedGameInfo += "\n";
   }
-  return organizedGameInfo;
+  return payload;
 }
 
 /**
  * Slack への通知
- * @param {string} organizedGameInfo
+ * @param {SlackPayloadType} organizedGameInfo
  */
-function postToSlack(organizedGameInfo: string) {
-  const payload = {
-    text: organizedGameInfo
-  }
+function postToSlack(organizedGameInfo: SlackPayloadType) {
   const options = {
     'method' : 'post',
     'contentType': 'application/json',
-    'payload' : JSON.stringify(payload)
+    'payload' : JSON.stringify(organizedGameInfo)
   };
   const response = UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
   console.log(response);
