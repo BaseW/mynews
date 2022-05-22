@@ -1,5 +1,5 @@
 const FIREBASE_FUNCTIONS_URL = "https://asia-northeast1-quickstart-1587635856027.cloudfunctions.net/scrapingNPB"
-const SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/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";
+const SLACK_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty("SLACK_WEBHOOK_URL");;
 
 /**
  * 試合情報の取得
@@ -38,5 +38,3 @@ function main() {
     console.log(error);
   }
 }
-
-main();
