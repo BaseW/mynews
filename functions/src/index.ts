@@ -54,6 +54,21 @@ async function getImageWrapperElement(
 }
 
 /**
+ * 日付情報の取得
+ * @param {ElementHandle<Element>} imageWrapperElement
+ * @returns {string}
+ */
+async function getDateInfo(imageWrapperElement: ElementHandle<Element>) {
+  const divElements = await imageWrapperElement.$$("div");
+  if (divElements && divElements.length > 0) {
+    const targetElement = divElements[0];
+    const dateInfo: string = await targetElement.jsonValue();
+    return dateInfo;
+  }
+  return "";
+}
+
+/**
  * 2枚の画像取得
  * @param {ElementHandle<Element>} imageWrapperElement
  * @return {Promise<ElementHandle<Element>[] | null>}
@@ -92,7 +107,7 @@ async function getTeamNames(imageWrapperElement: ElementHandle<Element>): Promis
  * @param {string} rightTeamName
  * @return {Promise<string>}
  */
-async function printGameInfo(leftTeamName: string, rightTeamName: string): Promise<string> {
+async function organizeGameInfo(leftTeamName: string, rightTeamName: string): Promise<string> {
   if (leftTeamName && rightTeamName) {
     const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
     console.log(gameInfo);
@@ -106,9 +121,9 @@ async function printGameInfo(leftTeamName: string, rightTeamName: string): Promi
  * @param {ElementHandle<Element>} imageWrapperElement
  * @return {Promise<string>}
  */
-async function printResult(imageWrapperElement: ElementHandle<Element>): Promise<string> {
+async function getGameInfo(imageWrapperElement: ElementHandle<Element>): Promise<string> {
   const [leftTeamName, rightTeamName] = await getTeamNames(imageWrapperElement);
-  const gameInfo = printGameInfo(leftTeamName, rightTeamName);
+  const gameInfo = organizeGameInfo(leftTeamName, rightTeamName);
   return gameInfo;
 }
 
@@ -133,7 +148,11 @@ async function main() {
       for (const wrapperElement of gameWrapperElements) {
         const imageWrapperElement = await getImageWrapperElement(wrapperElement);
         if (imageWrapperElement) {
-          const gameInfo = await printResult(imageWrapperElement);
+          const dateInfo = await getDateInfo(imageWrapperElement);
+          if (dateInfo) {
+            result = `${dateInfo}\n${result}`;
+          }
+          const gameInfo = await getGameInfo(imageWrapperElement);
           result += `\n${gameInfo}`;
         }
       }
