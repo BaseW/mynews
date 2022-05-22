@@ -7,11 +7,9 @@
   "author": "wada <wada@avita.co.jp>",
   "license": "Apache-2.0",
   "dependencies": {
-    "puppeteer": "^14.1.1",
-    "selenium-webdriver": "^4.1.2"
+    "axios": "^0.27.2"
   },
   "devDependencies": {
-    "@types/selenium-webdriver": "^4.1.0",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.4"
   }
