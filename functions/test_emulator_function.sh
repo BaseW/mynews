@@ -1,3 +1,10 @@
+if [ $# != 1 ]; then
+    echo 引数エラー: $*
+    exit 1
+else
+    echo OK
+fi
+
 no_update=$1
 
 if [ $no_update -ne 1 ];then
