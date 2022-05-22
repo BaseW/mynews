@@ -87,22 +87,26 @@ async function getTeamNames(imageWrapperElement: ElementHandle<Element>): Promis
  * 試合内容の出力
  * @param {string} leftTeamName
  * @param {string} rightTeamName
- * @returns {Promise<void>}
+ * @returns {Promise<string>}
  */
-async function printGameInfo(leftTeamName: string, rightTeamName: string): Promise<void> {
+async function printGameInfo(leftTeamName: string, rightTeamName: string): Promise<string> {
   if (leftTeamName && rightTeamName) {
-    console.log(`${leftTeamName} vs ${rightTeamName}`);
+    const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
+    console.log(gameInfo);
+    return gameInfo;
   }
+  return '';
 }
 
 /**
  * 結果の出力
  * @param {ElementHandle<Element>} imageWrapperElement
- * @returns {Promise<void>}
+ * @returns {Promise<string>}
  */
-async function printResult(imageWrapperElement: ElementHandle<Element>): Promise<void> {
+async function printResult(imageWrapperElement: ElementHandle<Element>): Promise<string> {
   const [leftTeamName, rightTeamName] = await getTeamNames(imageWrapperElement);
-  printGameInfo(leftTeamName, rightTeamName);
+  const gameInfo = printGameInfo(leftTeamName, rightTeamName);
+  return gameInfo;
 }
 
 /**
@@ -118,6 +122,7 @@ async function finishScraping(page: Page): Promise<void> {
  * メイン関数
  */
 async function main() {
+  let result = '';
   const page = await accessNPBOfficialSite();
   try {
     const gameWrapperElements = await getGameWrapperElements(page);
@@ -125,7 +130,8 @@ async function main() {
       for (let wrapperElement of gameWrapperElements) {
         const imageWrapperElement = await getImageWrapperElement(wrapperElement);
         if (imageWrapperElement) {
-          await printResult(imageWrapperElement);
+          const gameInfo = await printResult(imageWrapperElement);
+          result += `\n${gameInfo}`;
         }
       }
     }
@@ -133,10 +139,11 @@ async function main() {
     console.log(error);
   } finally {
     await finishScraping(page);
+    return result;
   }
 }
 
 export const scrapingNPB = functions.https.onRequest(async (request, response) => {
-  await main();
-  response.send("Hello from Firebase!");
+  const result = await main();
+  response.send(result);
 });
