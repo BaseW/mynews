@@ -5,6 +5,8 @@ import {Page, ElementHandle} from "puppeteer";
 const NPB_OFFICIAL_URL = "https://npb.jp/";
 const DATE_ELEMENT_WRAPPER_SELECTOR = ".date";
 const GAME_ELEMENT_WRAPPER_SELECTOR = ".score_box";
+const SCORE_ELEMENT_SELECTOR = ".score";
+const STATE_ELEMENT_SELECTOR = ".state";
 const FUNCTION_REGION = "asia-northeast1";
 
 /**
@@ -70,15 +72,15 @@ async function getImageWrapperElement(
 /**
  * 日付情報の取得
  * @param {ElementHandle<Element>} dateWrapperElement
- * @returns {string}
+ * @returns {Promise<string>}
  */
-async function getDateInfo(dateWrapperElement: ElementHandle<Element>) {
+async function getDateInfo(dateWrapperElement: ElementHandle<Element>): Promise<string> {
   const divElements = await dateWrapperElement.$$("div");
   if (divElements && divElements.length > 0) {
     console.log("found date element");
     const targetElement = await divElements[0].asElement();
     const dateInfo = await (await targetElement?.getProperty("innerText"))?.jsonValue();
-    return dateInfo;
+    return `${dateInfo}`;
   }
   return "";
 }
@@ -117,6 +119,34 @@ async function getTeamNames(imageWrapperElement: ElementHandle<Element>): Promis
 }
 
 /**
+ * スコア情報の取得
+ * @param {ElementHandle<Element>} imageWrapperElement
+ * @returns {Promise<string>}
+ */
+async function getScoreInfo(imageWrapperElement: ElementHandle<Element>): Promise<string> {
+  const scoreElement = await imageWrapperElement.$(SCORE_ELEMENT_SELECTOR);
+  if (scoreElement) {
+    const scoreInfo = await (await scoreElement.getProperty("innerText"))?.jsonValue();
+    return `${scoreInfo}`;
+  }
+  return "";
+}
+
+/**
+ * 詳細情報の取得
+ * @param {ElementHandle<Element>} imageWrapperElement
+ * @returns {Promise<string>}
+ */
+async function getStateInfo(imageWrapperElement: ElementHandle<Element>): Promise<string> {
+  const stateElement = await imageWrapperElement.$(STATE_ELEMENT_SELECTOR);
+  if (stateElement) {
+    const stateInfo = await (await stateElement.getProperty("innerText"))?.jsonValue();
+    return `${stateInfo}`;
+  }
+  return "";
+}
+
+/**
  * 試合内容の出力
  * @param {string} leftTeamName
  * @param {string} rightTeamName
@@ -138,6 +168,10 @@ async function organizeGameInfo(leftTeamName: string, rightTeamName: string): Pr
  */
 async function getGameInfo(imageWrapperElement: ElementHandle<Element>): Promise<string> {
   const [leftTeamName, rightTeamName] = await getTeamNames(imageWrapperElement);
+  const scoreInfo = await getScoreInfo(imageWrapperElement);
+  console.log(scoreInfo);
+  const stateInfo = await getStateInfo(imageWrapperElement);
+  console.log(stateInfo)
   const gameInfo = organizeGameInfo(leftTeamName, rightTeamName);
   return gameInfo;
 }
