@@ -99,3 +99,4 @@ Node.js v16.13.2
 - TypeScript
 - GAS
 - clasp
+- Cloud Functions
