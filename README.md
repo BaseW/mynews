@@ -88,6 +88,16 @@ $ firebase login
 $ firebase init
 ```
 
+CI で使うためには以下のコマンドでトークンを生成する必要がある
+
+```shell
+$ firebase login:ci
+```
+
+[CI で CLI を使う](https://firebase.google.com/docs/cli#cli-ci-systems)
+
+一旦このトークンはリポジトリの Secret に設定してある。
+
 ## 開発環境
 
 Node.js v16.13.2
