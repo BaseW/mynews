@@ -1,0 +1,37 @@
+# This is a basic workflow to help you get started with Actions
+
+name: deploy Cloud Functions
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on pull request events but only for the develop branch
+  pull_request:
+    branches:
+      - develop
+      - 16-auto-deploy-cloud-functions
+    types:
+      - closed
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# This job only run on pull request was merged
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # https://github.com/marketplace/actions/github-action-for-firebase
+      - name: GitHub Action for Firebase
+        uses: w9jds/firebase-action@v2.1.2
+
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only functions
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
