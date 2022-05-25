@@ -25,6 +25,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
+      - name: install packages
+        with:
+          args: npm install
+
       # https://github.com/marketplace/actions/github-action-for-firebase
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@v2.1.2
