@@ -98,6 +98,15 @@ function organizeGameInfo(fetchedResult: ResultType): SlackPayloadType {
             }
           };
           payload.blocks.push(gameBlockInfo);
+        } else {
+          const gameBlockInfo: SlackBlockInfo = {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `• ${gameInfo + "\n"}`
+            }
+          };
+          payload.blocks.push(gameBlockInfo);
         }
       } else {
         const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
@@ -110,15 +119,16 @@ function organizeGameInfo(fetchedResult: ResultType): SlackPayloadType {
             }
           };
           payload.blocks.push(gameBlockInfo);
+        } else {
+          const gameBlockInfo: SlackBlockInfo = {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `• ${gameInfo + "\n"}`
+            }
+          };
+          payload.blocks.push(gameBlockInfo);
         }
-        const gameBlockInfo: SlackBlockInfo = {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `• ${gameInfo + "\n"}`
-          }
-        };
-        payload.blocks.push(gameBlockInfo);
       }
     }
   }
@@ -166,13 +176,16 @@ function organizeGameInfoForLine(fetchedResult: ResultType): string {
         const gameInfo = `${leftTeamName} ${leftTeamScore} - ${rightTeamScore} ${rightTeamName}`;
         if (gameStateInfo) {
           organizedGameInfoForLine += `• ${gameInfo + "\n" + gameStateInfo + "\n\n"}`
+        } else {
+          organizedGameInfoForLine += `• ${gameInfo + "\n\n"}`
         }
       } else {
         const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
         if (gameStateInfo) {
           organizedGameInfoForLine += `• ${gameInfo + "\n" + gameStateInfo + "\n\n"}`
+        } else {
+          organizedGameInfoForLine += `• ${gameInfo + "\n\n"}`
         }
-        organizedGameInfoForLine += `• ${gameInfo + "\n\n"}`
       }
     }
   }
