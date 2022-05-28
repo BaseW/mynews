@@ -8,7 +8,6 @@ on:
   pull_request:
     branches:
       - develop
-      - 17-auto-deploy-gas
     types:
       - closed
 
@@ -18,7 +17,9 @@ on:
 # This job only run on pull request was merged
 jobs:
   if_merged:
-    if: github.event.pull_request.merged == true
+    if: |
+      (github.event.pull_request.merged == true) &&
+        contains(github.event.pull_request.labels.*.name, 'GAS')
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:

@@ -6,4 +6,4 @@ fi
 new_branch_name=$1
 
 git checkout -b $new_branch_name && \
-git commit --allow-empty -m "empty commit"
+./empty-commit.sh "empty commit"
