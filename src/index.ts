@@ -234,10 +234,43 @@ function postToLINE() {
   }
 }
 
+function getTomorrowGarbageInfo() {
+  const todayWeekNum = new Date().getDay();
+  const tomorrowWeekNum = todayWeekNum === 6
+    ? 0
+    : todayWeekNum + 1;
+  const weekDays = [
+    "日曜日",
+    "月曜日",
+    "火曜日",
+    "水曜日",
+    "木曜日",
+    "金曜日",
+    "土曜日"
+  ];
+  const garbages = [
+    GARBAGE_SUNDAY,
+    GARBAGE_MONDAY,
+    GARBAGE_TUESDAY,
+    GARBAGE_WEDNESDAY,
+    GARBAGE_THURSDAY,
+    GARBAGE_FRIDAY,
+    GARBAGE_SATURDAY,
+  ]
+  const tomorrowDay = weekDays[tomorrowWeekNum];
+  const tomorrowGarbage = garbages[tomorrowWeekNum];
+  const message = `明日は${tomorrowDay}
+${tomorrowGarbage} の日
+
+  `
+  console.log(message);
+  return message;
+}
+
 /**
- * ゴミ出しの情報取得
+ * ゴミ出しの情報一覧取得
  */
-function getGarbageInfo() {
+function getGarbageInfoList() {
   const MondayInfo = GARBAGE_MONDAY;
   const TuesdayInfo = GARBAGE_TUESDAY;
   const WednesdayInfo = GARBAGE_WEDNESDAY;
@@ -264,7 +297,9 @@ function getGarbageInfo() {
 function notifyAboutGarbage() {
   try {
     const url = 'https://api.line.me/v2/bot/message/push';
-    const message = getGarbageInfo();
+    const tomorrowInfo = getTomorrowGarbageInfo();
+    const garbageInfoList = getGarbageInfoList();
+    const message = tomorrowInfo + garbageInfoList;
 
     UrlFetchApp.fetch(url, {
       'headers': {
