@@ -5,6 +5,13 @@ const LINE_CHANNEL_ACCESS_TOKEN_NPB = PropertiesService.getScriptProperties().ge
 const LINE_CHANNEL_ACCESS_TOKEN_HOME = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN_HOME");
 const LINE_USER_ID = PropertiesService.getScriptProperties().getProperty("LINE_USER_ID");
 const LINE_GROUP_ID = PropertiesService.getScriptProperties().getProperty("LINE_GROUP_ID");
+const GARBAGE_MONDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_MONDAY");
+const GARBAGE_TUESDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_TUESDAY");
+const GARBAGE_WEDNESDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_WEDNESDAY");
+const GARBAGE_THURSDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_THURSDAY");
+const GARBAGE_FRIDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_FRIDAY");
+const GARBAGE_SATURDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SATURDAY");
+const GARBAGE_SUNDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SUNDAY");
 
 type ResultType = {
   dateInfo: string;
@@ -228,12 +235,36 @@ function postToLINE() {
 }
 
 /**
+ * ゴミ出しの情報取得
+ */
+function getGarbageInfo() {
+  const MondayInfo = GARBAGE_MONDAY;
+  const TuesdayInfo = GARBAGE_TUESDAY;
+  const WednesdayInfo = GARBAGE_WEDNESDAY;
+  const ThursdayInfo = GARBAGE_THURSDAY;
+  const FridayInfo = GARBAGE_FRIDAY;
+  const SaturdayInfo = GARBAGE_SATURDAY;
+  const SundayInfo = GARBAGE_SUNDAY;
+  const message = `ゴミ出しの日一覧
+
+  月曜日: ${MondayInfo}
+  火曜日: ${TuesdayInfo}
+  水曜日: ${WednesdayInfo}
+  木曜日: ${ThursdayInfo}
+  金曜日: ${FridayInfo}
+  土曜日: ${SaturdayInfo}
+  日曜日: ${SundayInfo}
+  `
+  return message;
+}
+
+/**
  * ゴミ出しの通知
  */
 function notifyAboutGarbage() {
   try {
     const url = 'https://api.line.me/v2/bot/message/push';
-    const message = "テストだよ";
+    const message = getGarbageInfo();
 
     UrlFetchApp.fetch(url, {
       'headers': {
