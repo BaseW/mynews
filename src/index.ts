@@ -1,8 +1,10 @@
-const FIREBASE_FUNCTIONS_URL = "https://asia-northeast1-quickstart-1587635856027.cloudfunctions.net/scrapingNPB";
+const FIREBASE_FUNCTIONS_URL = PropertiesService.getScriptProperties().getProperty("FIREBASE_FUNCTIONS_URL");
 const SLACK_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty("SLACK_WEBHOOK_URL");
 const SLACK_USER_ID = PropertiesService.getScriptProperties().getProperty("SLACK_USER_ID");
-const LINE_CHANNEL_ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN");
+const LINE_CHANNEL_ACCESS_TOKEN_NPB = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN_NPB");
+const LINE_CHANNEL_ACCESS_TOKEN_HOME = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN_HOME");
 const LINE_USER_ID = PropertiesService.getScriptProperties().getProperty("LINE_USER_ID");
+const LINE_GROUP_ID = PropertiesService.getScriptProperties().getProperty("LINE_GROUP_ID");
 
 type ResultType = {
   dateInfo: string;
@@ -209,7 +211,7 @@ function postToLINE() {
     UrlFetchApp.fetch(url, {
       'headers': {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer ' + LINE_CHANNEL_ACCESS_TOKEN,
+          'Authorization': 'Bearer ' + LINE_CHANNEL_ACCESS_TOKEN_NPB,
       },
       'method': 'POST',
       'payload': JSON.stringify({
@@ -220,6 +222,33 @@ function postToLINE() {
           }]
       })
     })
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+/**
+ * ゴミ出しの通知
+ */
+function notifyAboutGarbage() {
+  try {
+    const url = 'https://api.line.me/v2/bot/message/push';
+    const message = "テストだよ";
+
+    UrlFetchApp.fetch(url, {
+      'headers': {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer ' + LINE_CHANNEL_ACCESS_TOKEN_HOME,
+      },
+      'method': 'POST',
+      'payload': JSON.stringify({
+          'to': LINE_GROUP_ID,
+          'messages': [{
+              'type': 'text',
+              'text': message,
+          }]
+      })
+    });
   } catch (error) {
     console.log(error);
   }
