@@ -213,7 +213,9 @@ function postToLINE() {
     // LINE Messaging APIの利用のための下準備
     const url = 'https://api.line.me/v2/bot/message/push';
     // メッセージ本文を格納する変数
-    const body = organizedGameInfoForLine;
+    const body = organizedGameInfoForLine.length > 0
+      ? organizedGameInfoForLine
+      : '今日は試合がありません';
 
     UrlFetchApp.fetch(url, {
       'headers': {
