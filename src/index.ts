@@ -77,69 +77,80 @@ function organizeGameInfo(fetchedResult: ResultType): SlackPayloadType {
   };
   payload.blocks.push(mentionBlockInfo);
 
-  const dateBlockInfo: SlackBlockInfo = {
-    type: "section",
-    text: {
-      type: "mrkdwn",
-      text: `${dateInfo}\n\n`
+  if (dateInfo && gameInfoList && gameInfoList.length > 0) {
+    const dateBlockInfo: SlackBlockInfo = {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `${dateInfo}\n\n`
+      }
     }
-  }
-  payload.blocks.push(dateBlockInfo);
+    payload.blocks.push(dateBlockInfo);
 
-  for (let i = 0; i < gameInfoList.length; i ++) {
-    const gameInfo: GameInfo = gameInfoList[i];
-    const {
-      leftTeamName,
-      rightTeamName,
-      leftTeamScore,
-      rightTeamScore,
-      gameStateInfo
-    } = gameInfo;
-    if (leftTeamName && rightTeamName) {
-      if (leftTeamScore && rightTeamScore) {
-        const gameInfo = `${leftTeamName} ${leftTeamScore} - ${rightTeamScore} ${rightTeamName}`;
-        if (gameStateInfo) {
-          const gameBlockInfo: SlackBlockInfo = {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: `• ${gameInfo + "\n" + gameStateInfo + "\n"}`
-            }
-          };
-          payload.blocks.push(gameBlockInfo);
+    for (let i = 0; i < gameInfoList.length; i ++) {
+      const gameInfo: GameInfo = gameInfoList[i];
+      const {
+        leftTeamName,
+        rightTeamName,
+        leftTeamScore,
+        rightTeamScore,
+        gameStateInfo
+      } = gameInfo;
+      if (leftTeamName && rightTeamName) {
+        if (leftTeamScore && rightTeamScore) {
+          const gameInfo = `${leftTeamName} ${leftTeamScore} - ${rightTeamScore} ${rightTeamName}`;
+          if (gameStateInfo) {
+            const gameBlockInfo: SlackBlockInfo = {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `• ${gameInfo + "\n" + gameStateInfo + "\n"}`
+              }
+            };
+            payload.blocks.push(gameBlockInfo);
+          } else {
+            const gameBlockInfo: SlackBlockInfo = {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `• ${gameInfo + "\n"}`
+              }
+            };
+            payload.blocks.push(gameBlockInfo);
+          }
         } else {
-          const gameBlockInfo: SlackBlockInfo = {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: `• ${gameInfo + "\n"}`
-            }
-          };
-          payload.blocks.push(gameBlockInfo);
-        }
-      } else {
-        const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
-        if (gameStateInfo) {
-          const gameBlockInfo: SlackBlockInfo = {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: `• ${gameInfo + "\n" + gameStateInfo + "\n"}`
-            }
-          };
-          payload.blocks.push(gameBlockInfo);
-        } else {
-          const gameBlockInfo: SlackBlockInfo = {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text: `• ${gameInfo + "\n"}`
-            }
-          };
-          payload.blocks.push(gameBlockInfo);
+          const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
+          if (gameStateInfo) {
+            const gameBlockInfo: SlackBlockInfo = {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `• ${gameInfo + "\n" + gameStateInfo + "\n"}`
+              }
+            };
+            payload.blocks.push(gameBlockInfo);
+          } else {
+            const gameBlockInfo: SlackBlockInfo = {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `• ${gameInfo + "\n"}`
+              }
+            };
+            payload.blocks.push(gameBlockInfo);
+          }
         }
       }
     }
+  } else {
+    const noGameDayInfo: SlackBlockInfo = {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '今日は試合がありません'
+      }
+    };
+    payload.blocks.push(noGameDayInfo);
   }
   return payload;
 }
