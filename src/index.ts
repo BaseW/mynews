@@ -1,49 +1,6 @@
-const FIREBASE_FUNCTIONS_URL = PropertiesService.getScriptProperties().getProperty("FIREBASE_FUNCTIONS_URL");
-const SLACK_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty("SLACK_WEBHOOK_URL");
-const SLACK_USER_ID = PropertiesService.getScriptProperties().getProperty("SLACK_USER_ID");
-const LINE_CHANNEL_ACCESS_TOKEN_NPB = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN_NPB");
-const LINE_CHANNEL_ACCESS_TOKEN_HOME = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN_HOME");
-const LINE_USER_ID = PropertiesService.getScriptProperties().getProperty("LINE_USER_ID");
-const LINE_GROUP_ID = PropertiesService.getScriptProperties().getProperty("LINE_GROUP_ID");
-const GARBAGE_MONDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_MONDAY");
-const GARBAGE_TUESDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_TUESDAY");
-const GARBAGE_WEDNESDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_WEDNESDAY");
-const GARBAGE_THURSDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_THURSDAY");
-const GARBAGE_FRIDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_FRIDAY");
-const GARBAGE_SATURDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SATURDAY");
-const GARBAGE_SUNDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SUNDAY");
+import { FIREBASE_FUNCTIONS_URL, GARBAGE_FRIDAY, GARBAGE_MONDAY, GARBAGE_SATURDAY, GARBAGE_SUNDAY, GARBAGE_THURSDAY, GARBAGE_TUESDAY, GARBAGE_WEDNESDAY, LINE_CHANNEL_ACCESS_TOKEN_HOME, LINE_CHANNEL_ACCESS_TOKEN_NPB, LINE_GROUP_ID, LINE_USER_ID, SLACK_USER_ID, SLACK_WEBHOOK_URL } from "./constants";
+import { GameInfo, ResultType, SlackBlockInfo, SlackPayloadType } from "./types";
 
-type ResultType = {
-  dateInfo: string;
-  gameInfoList: GameInfo[];
-}
-
-type GameInfo = {
-  leftTeamName: string;
-  rightTeamName: string;
-  leftTeamScore: string;
-  rightTeamScore: string;
-  gameStateInfo: string;
-}
-
-type ParsedScoreInfo = {
-  leftTeamScore: string;
-  rightTeamScore: string;
-}
-
-type SlackTextInfo = {
-  type: string;
-  text: string;
-}
-
-type SlackBlockInfo = {
-  type: string;
-  text: SlackTextInfo;
-}
-
-type SlackPayloadType = {
-  blocks: SlackBlockInfo[];
-}
 
 /**
  * 試合情報の取得
