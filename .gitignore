@@ -4,3 +4,5 @@ node_modules/
 webhook_test*
 .env
 .env.dev
+*png
+*jpg
