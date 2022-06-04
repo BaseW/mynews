@@ -1,4 +1,10 @@
-import { GARBAGE_FRIDAY, GARBAGE_MONDAY, GARBAGE_SATURDAY, GARBAGE_SUNDAY, GARBAGE_THURSDAY, GARBAGE_TUESDAY, GARBAGE_WEDNESDAY, LINE_CHANNEL_ACCESS_TOKEN_HOME, LINE_GROUP_ID } from "../../constants";
+const GARBAGE_MONDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_MONDAY");
+const GARBAGE_TUESDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_TUESDAY");
+const GARBAGE_WEDNESDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_WEDNESDAY");
+const GARBAGE_THURSDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_THURSDAY");
+const GARBAGE_FRIDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_FRIDAY");
+const GARBAGE_SATURDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SATURDAY");
+const GARBAGE_SUNDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SUNDAY");
 
 export function getTomorrowGarbageInfo() {
   const todayWeekNum = new Date().getDay();

@@ -1,5 +1,11 @@
 import { getGameInfo, organizeGameInfo, postToSlack, organizeGameInfoForLine, getTomorrowGarbageInfo, getGarbageInfoList } from "./lib";
-import { LINE_API_PUSH_MESSAGE_URL, LINE_CHANNEL_ACCESS_TOKEN_NPB, LINE_CHANNEL_ACCESS_TOKEN_HOME, LINE_GROUP_ID, LINE_USER_ID } from "./constants";
+
+const LINE_CHANNEL_ACCESS_TOKEN_NPB = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN_NPB");
+const LINE_CHANNEL_ACCESS_TOKEN_HOME = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN_HOME");
+const LINE_USER_ID = PropertiesService.getScriptProperties().getProperty("LINE_USER_ID");
+const LINE_GROUP_ID = PropertiesService.getScriptProperties().getProperty("LINE_GROUP_ID");
+const LINE_API_PUSH_MESSAGE_URL = "https://api.line.me/v2/bot/message/push";
+const LINE_API_ADD_RICHMENU_URL = "https://api.line.me/v2/bot/richmenu";
 
 /**
  * Slack へ NPB の試合一覧を通知する関数

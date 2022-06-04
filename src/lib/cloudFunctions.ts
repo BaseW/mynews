@@ -1,5 +1,6 @@
 import { ResultType } from "../types";
-import { FIREBASE_FUNCTIONS_URL } from "../constants";
+
+const FIREBASE_FUNCTIONS_URL = PropertiesService.getScriptProperties().getProperty("FIREBASE_FUNCTIONS_URL");
 
 /**
  * 試合情報の取得

@@ -1,5 +1,7 @@
-import { SLACK_USER_ID, SLACK_WEBHOOK_URL } from "../constants";
 import { ResultType, SlackBlockInfo, SlackPayloadType, GameInfo } from "../types";
+
+const SLACK_WEBHOOK_URL = PropertiesService.getScriptProperties().getProperty("SLACK_WEBHOOK_URL");
+const SLACK_USER_ID = PropertiesService.getScriptProperties().getProperty("SLACK_USER_ID");
 
 /**
  * 試合情報の整理
