@@ -1,5 +1,5 @@
 import { getGameInfo, organizeGameInfo, postToSlack, organizeGameInfoForLine, getTomorrowGarbageInfo, getGarbageInfoList } from "./lib";
-import { LINE_CHANNEL_ACCESS_TOKEN_NPB, LINE_CHANNEL_ACCESS_TOKEN_HOME, LINE_GROUP_ID, LINE_USER_ID } from "./constants";
+import { LINE_API_PUSH_MESSAGE_URL, LINE_CHANNEL_ACCESS_TOKEN_NPB, LINE_CHANNEL_ACCESS_TOKEN_HOME, LINE_GROUP_ID, LINE_USER_ID } from "./constants";
 
 /**
  * Slack へ NPB の試合一覧を通知する関数
@@ -26,7 +26,7 @@ function notifyToLINEAboutNPB() {
     const organizedGameInfoForLine = organizeGameInfoForLine(gameInfo);
     console.log(organizedGameInfoForLine);
     // LINE Messaging APIの利用のための下準備
-    const url = 'https://api.line.me/v2/bot/message/push';
+    const url = LINE_API_PUSH_MESSAGE_URL;
     // メッセージ本文を格納する変数
     const body = organizedGameInfoForLine.length > 0
       ? organizedGameInfoForLine
@@ -54,9 +54,9 @@ function notifyToLINEAboutNPB() {
 /**
  * ゴミ出しの通知
  */
- function notifyToLINEAboutGarbage() {
+function notifyToLINEAboutGarbage() {
   try {
-    const url = 'https://api.line.me/v2/bot/message/push';
+    const url = LINE_API_PUSH_MESSAGE_URL;
     const tomorrowInfo = getTomorrowGarbageInfo();
     const garbageInfoList = getGarbageInfoList();
     const message = tomorrowInfo + garbageInfoList;
