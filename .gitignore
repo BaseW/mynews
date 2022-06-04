@@ -3,3 +3,6 @@ node_modules/
 .clasprc.json
 webhook_test*
 .env
+.env.dev
+*png
+*jpg
