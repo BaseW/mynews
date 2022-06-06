@@ -180,34 +180,40 @@ function organizeGameInfoForLine(fetchedResult: ResultType): string {
     gameInfoList,
   } = fetchedResult;
   let organizedGameInfoForLine = '';
-  organizedGameInfoForLine += `${dateInfo}\n\n`;
+  if (dateInfo && dateInfo.length > 0) {
+    organizedGameInfoForLine += `${dateInfo}\n\n`;
+  }
 
-  for (let i = 0; i < gameInfoList.length; i ++) {
-    const gameInfo: GameInfo = gameInfoList[i];
-    const {
-      leftTeamName,
-      rightTeamName,
-      leftTeamScore,
-      rightTeamScore,
-      gameStateInfo
-    } = gameInfo;
-    if (leftTeamName && rightTeamName) {
-      if (leftTeamScore && rightTeamScore) {
-        const gameInfo = `${leftTeamName} ${leftTeamScore} - ${rightTeamScore} ${rightTeamName}`;
-        if (gameStateInfo) {
-          organizedGameInfoForLine += `• ${gameInfo + "\n" + gameStateInfo + "\n\n"}`
+  if (gameInfoList && gameInfoList.length > 0) {
+    for (let i = 0; i < gameInfoList.length; i ++) {
+      const gameInfo: GameInfo = gameInfoList[i];
+      const {
+        leftTeamName,
+        rightTeamName,
+        leftTeamScore,
+        rightTeamScore,
+        gameStateInfo
+      } = gameInfo;
+      if (leftTeamName && rightTeamName) {
+        if (leftTeamScore && rightTeamScore) {
+          const gameInfo = `${leftTeamName} ${leftTeamScore} - ${rightTeamScore} ${rightTeamName}`;
+          if (gameStateInfo) {
+            organizedGameInfoForLine += `• ${gameInfo + "\n" + gameStateInfo + "\n\n"}`
+          } else {
+            organizedGameInfoForLine += `• ${gameInfo + "\n\n"}`
+          }
         } else {
-          organizedGameInfoForLine += `• ${gameInfo + "\n\n"}`
-        }
-      } else {
-        const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
-        if (gameStateInfo) {
-          organizedGameInfoForLine += `• ${gameInfo + "\n" + gameStateInfo + "\n\n"}`
-        } else {
-          organizedGameInfoForLine += `• ${gameInfo + "\n\n"}`
+          const gameInfo = `${leftTeamName} vs ${rightTeamName}`;
+          if (gameStateInfo) {
+            organizedGameInfoForLine += `• ${gameInfo + "\n" + gameStateInfo + "\n\n"}`
+          } else {
+            organizedGameInfoForLine += `• ${gameInfo + "\n\n"}`
+          }
         }
       }
     }
+  } else {
+    organizedGameInfoForLine += '今日は試合がありません';
   }
   return organizedGameInfoForLine;
 }
