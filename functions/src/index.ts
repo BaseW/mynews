@@ -234,3 +234,52 @@ export const scrapingNPB = functions.region(FUNCTION_REGION)
       const result = await main();
       response.send(result);
     });
+
+enum UserNum {
+  One = 1,
+  Two
+}
+
+type GetRemindListBody = {
+  userNumber: UserNum;
+}
+
+type RemindItem = {
+  name: string;
+  limit: string;
+}
+
+/**
+ * User のリマインダー一覧を返す
+ * @param {number} userNumber
+ * @return {RemindItem[]}
+ */
+function getUserRemindList(userNumber: number): RemindItem[] {
+  if (userNumber === UserNum.One) {
+    return [
+      {
+        name: "item for user1",
+        limit: "",
+      },
+    ];
+  } else if (userNumber === UserNum.Two) {
+    return [
+      {
+        name: "item for user2",
+        limit: "",
+      },
+    ];
+  }
+  return [];
+}
+
+export const getRemindList = functions.region(FUNCTION_REGION)
+    .https.onRequest(async (request, response) => {
+      const body: GetRemindListBody = request.body;
+      const {userNumber} = body;
+      const remindList = getUserRemindList(userNumber);
+      const responseBody = {
+        remindList,
+      };
+      response.send(responseBody);
+    });
