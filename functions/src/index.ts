@@ -1,4 +1,5 @@
 import * as functions from "firebase-functions";
+import * as firebaseAdmin from "firebase-admin";
 import * as puppeteer from "puppeteer";
 import {Page, ElementHandle} from "puppeteer";
 import {GameInfo, ParsedScoreInfo, ResultType} from "./types";
@@ -9,6 +10,12 @@ const GAME_ELEMENT_WRAPPER_SELECTOR = ".score_box";
 const SCORE_ELEMENT_SELECTOR = ".score";
 const STATE_ELEMENT_SELECTOR = ".state";
 const FUNCTION_REGION = "asia-northeast1";
+
+firebaseAdmin.initializeApp({
+  credential: firebaseAdmin.credential.applicationDefault()
+})
+
+const fireStore = firebaseAdmin.firestore();
 
 /**
  * NPB 公式サイトへアクセスする
@@ -250,25 +257,43 @@ type RemindItem = {
 }
 
 /**
+ * Firestore からリマインドアイテムを取得する
+ * @param {number} userNumber
+ * @return {Promise<RemindItem[]>}
+ */
+async function getRemindListFromFirestore(userNumber: number): Promise<RemindItem[]> {
+  const remindItems: RemindItem[] = [];
+  const usersPath = "users";
+  const itemsPath = "items";
+  const itemsRef = fireStore.collection(usersPath).doc(String(userNumber)).collection(itemsPath);
+  const itemDocRefs = await itemsRef.listDocuments();
+
+  for (let i = 0; i < itemDocRefs.length; i ++) {
+    const itemDoc = await itemDocRefs[i].get();
+    const itemData = await itemDoc.data();
+    if (itemData) {
+      remindItems.push(
+        {
+          name: itemData.name,
+          limit: itemData.limit
+        }
+      );
+    }
+  }
+
+  return remindItems;
+}
+
+/**
  * User のリマインダー一覧を返す
  * @param {number} userNumber
- * @return {RemindItem[]}
+ * @return {Promise<RemindItem[]>}
  */
-function getUserRemindList(userNumber: number): RemindItem[] {
+async function getUserRemindList(userNumber: number): Promise<RemindItem[]> {
   if (userNumber === UserNum.One) {
-    return [
-      {
-        name: "item for user1",
-        limit: "",
-      },
-    ];
+    return await getRemindListFromFirestore(UserNum.One);
   } else if (userNumber === UserNum.Two) {
-    return [
-      {
-        name: "item for user2",
-        limit: "",
-      },
-    ];
+    return await getRemindListFromFirestore(UserNum.Two);
   }
   return [];
 }
@@ -277,7 +302,7 @@ export const getRemindList = functions.region(FUNCTION_REGION)
     .https.onRequest(async (request, response) => {
       const body: GetRemindListBody = request.body;
       const {userNumber} = body;
-      const remindList = getUserRemindList(userNumber);
+      const remindList = await getUserRemindList(userNumber);
       const responseBody = {
         remindList,
       };
