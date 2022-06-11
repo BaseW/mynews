@@ -12,8 +12,8 @@ const STATE_ELEMENT_SELECTOR = ".state";
 const FUNCTION_REGION = "asia-northeast1";
 
 firebaseAdmin.initializeApp({
-  credential: firebaseAdmin.credential.applicationDefault()
-})
+  credential: firebaseAdmin.credential.applicationDefault(),
+});
 
 const fireStore = firebaseAdmin.firestore();
 
@@ -273,10 +273,10 @@ async function getRemindListFromFirestore(userNumber: number): Promise<RemindIte
     const itemData = await itemDoc.data();
     if (itemData) {
       remindItems.push(
-        {
-          name: itemData.name,
-          limit: itemData.limit
-        }
+          {
+            name: itemData.name,
+            limit: itemData.limit,
+          }
       );
     }
   }
