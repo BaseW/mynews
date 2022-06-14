@@ -272,6 +272,7 @@ async function getRemindListFromFirestore(userNumber: number): Promise<RemindIte
     const itemDoc = await itemDocRefs[i].get();
     const itemData = await itemDoc.data();
     if (itemData) {
+      console.log(itemData);
       remindItems.push(
           {
             name: itemData.name,
