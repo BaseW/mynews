@@ -78,7 +78,7 @@ function sendOkResponse(userId: string, remindItems: RemindItem[]) {
 function getRemindItems(userNumber: number) {
   try {
     const url = FIREBASE_FUNCTIONS_REMIND_ITEMS_URL;
-    const remindItems = UrlFetchApp.fetch(url, {
+    const remindItemsResponse = UrlFetchApp.fetch(url, {
       'headers': {
           'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -86,7 +86,8 @@ function getRemindItems(userNumber: number) {
       'payload': JSON.stringify({
           'userNumber': userNumber
       })
-    })
+    });
+    const { remindItems } = remindItemsResponse;
     console.log(remindItems);
     return remindItems;
   } catch (error) {
