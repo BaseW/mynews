@@ -303,9 +303,9 @@ export const getRemindList = functions.region(FUNCTION_REGION)
     .https.onRequest(async (request, response) => {
       const body: GetRemindListBody = request.body;
       const {userNumber} = body;
-      const remindList = await getUserRemindList(userNumber);
+      const remindItems = await getUserRemindList(userNumber);
       const responseBody = {
-        remindList,
+        remindItems,
       };
       response.send(responseBody);
     });
