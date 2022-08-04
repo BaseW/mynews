@@ -1,0 +1,16 @@
+{
+  "name": "mynews",
+  "version": "0.1.0",
+  "description": "mynews",
+  "main": "lib/index.js",
+  "repository": "git@github.com:BaseW/mynews.git",
+  "author": "wada <wada@avita.co.jp>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.27.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
+  }
+}
