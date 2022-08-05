@@ -351,5 +351,31 @@ function main() {
     postToSlack(organizedGameInfo);
   } catch (error) {
     console.log(error);
+    const e = error as Error;
+    const payload: SlackPayloadType = {
+      blocks: []
+    }
+    const mentionBlockInfo: SlackBlockInfo = {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `<@${SLACK_USER_ID}>\n\n`
+      }
+    };
+    payload.blocks.push(mentionBlockInfo);
+    const errorInfo: SlackBlockInfo = {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `• ${e.message + "\n"}`
+      }
+    };
+    const options = {
+      'method' : 'post',
+      'contentType': 'application/json',
+      'payload' : JSON.stringify(errorInfo)
+    };
+    const response = UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
+    console.log(response);
   }
 }
