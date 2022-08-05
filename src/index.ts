@@ -370,7 +370,7 @@ function main() {
         text: `• ${e.message + "\n"}`
       }
     };
-    payload.blocks.push(erorInfo);
+    payload.blocks.push(errorInfo);
     const options = {
       'method' : 'post',
       'contentType': 'application/json',
