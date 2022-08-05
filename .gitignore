@@ -3,3 +3,4 @@ node_modules/
 .clasprc.json
 webhook_test*
 .env
+firebase-debug.log
