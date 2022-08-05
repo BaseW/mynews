@@ -370,10 +370,11 @@ function main() {
         text: `• ${e.message + "\n"}`
       }
     };
+    payload.blocks.push(erorInfo);
     const options = {
       'method' : 'post',
       'contentType': 'application/json',
-      'payload' : JSON.stringify(errorInfo)
+      'payload' : JSON.stringify(payload)
     };
     const response = UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
     console.log(response);
