@@ -230,7 +230,7 @@ async function main() {
 }
 
 export const scrapingNPB = functions.region(FUNCTION_REGION)
-    .https.onRequest(async (request, response) => {
+    .https.onCall(async (data, context) => {
       const result = await main();
-      response.send(result);
+      return result;
     });
