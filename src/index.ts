@@ -53,8 +53,13 @@ type SlackPayloadType = {
  * 試合情報の取得
  * @returns {ResultType}
  */
-function getGameInfo(): ResultType {
-  const rawGameInfo: string = UrlFetchApp.fetch(FIREBASE_FUNCTIONS_URL).getContentText();
+function getGameInfo(idToken: string): ResultType {
+  const rawGameInfo: string = UrlFetchApp.fetch(FIREBASE_FUNCTIONS_URL, {
+    'headers': {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': `Bearer ${idToken}`,
+    },
+  }).getContentText();
   const gameInfo: ResultType = JSON.parse(rawGameInfo);
   return gameInfo;
 }
@@ -367,7 +372,8 @@ async function loginToFirebase() {
  */
 function main() {
   try {
-    const gameInfo = getGameInfo();
+    const idToken = loginToFirebase();
+    const gameInfo = getGameInfo(idToken);
     console.log(gameInfo);
     const organizedGameInfo = organizeGameInfo(gameInfo);
     console.log(organizedGameInfo);
