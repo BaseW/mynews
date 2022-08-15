@@ -12,6 +12,10 @@ const GARBAGE_THURSDAY = PropertiesService.getScriptProperties().getProperty("GA
 const GARBAGE_FRIDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_FRIDAY");
 const GARBAGE_SATURDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SATURDAY");
 const GARBAGE_SUNDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SUNDAY");
+const FIREBASE_AUTH_EMAIL = PropertiesService.getScriptProperties().getProperty("FIREBASE_AUTH_EMAIL");
+const FIREBASE_AUTH_PASSWORD =
+	PropertiesService.getScriptProperties().getProperty("FIREBASE_AUTH_PASSWORD");
+const FIREBASE_AUTH_LOGIN_URL = PropertiesService.getScriptProperties().getProperty("FIREBASE_AUTH_LOGIN_URL");
 
 type ResultType = {
   dateInfo: string;
@@ -337,6 +341,25 @@ function notifyAboutGarbage() {
   } catch (error) {
     console.log(error);
   }
+}
+
+/**
+ * REST API を利用した、Firebase Authentication へのログイン
+ */
+async function loginToFirebase() {
+  const loginResponse = UrlFetchApp.fetch(FIREBASE_AUTH_LOGIN_URL, {
+    'headers': {
+        'Content-Type': 'application/json; charset=UTF-8',
+    },
+    'method': 'POST',
+    'payload': JSON.stringify({
+      'email': FIREBASE_AUTH_EMAIL,
+      'password': FIREBASE_AUTH_PASSWORD,
+      'returnSecureToken': true,
+    })
+  });
+  const { idToken } = loginResponse;
+  return idToken;
 }
 
 /**
