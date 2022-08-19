@@ -230,6 +230,12 @@ async function main() {
 }
 
 export const scrapingNPB = functions.region(FUNCTION_REGION)
+    .runWith({
+      // Ensure the function has enough memory and time
+      // to process large files
+      timeoutSeconds: 60,
+      memory: "512MB",
+    })
     .https.onCall(async (data, context) => {
       const result = await main();
       return result;
