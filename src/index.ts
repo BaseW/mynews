@@ -12,7 +12,10 @@ const GARBAGE_THURSDAY = PropertiesService.getScriptProperties().getProperty("GA
 const GARBAGE_FRIDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_FRIDAY");
 const GARBAGE_SATURDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SATURDAY");
 const GARBAGE_SUNDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SUNDAY");
-const GCP_IDTOKEN = PropertiesService.getScriptProperties().getProperty("GCP_IDTOKEN");
+const FIREBASE_AUTH_EMAIL = PropertiesService.getScriptProperties().getProperty("FIREBASE_AUTH_EMAIL");
+const FIREBASE_AUTH_PASSWORD =
+	PropertiesService.getScriptProperties().getProperty("FIREBASE_AUTH_PASSWORD");
+const FIREBASE_AUTH_LOGIN_URL = PropertiesService.getScriptProperties().getProperty("FIREBASE_AUTH_LOGIN_URL");
 
 type ResultType = {
   dateInfo: string;
@@ -50,11 +53,11 @@ type SlackPayloadType = {
  * 試合情報の取得
  * @returns {ResultType}
  */
-function getGameInfo(): ResultType {
+function getGameInfo(idToken: string): ResultType {
   const rawGameInfo: string = UrlFetchApp.fetch(FIREBASE_FUNCTIONS_URL, {
     'headers': {
       'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': `Bearer ${GCP_IDTOKEN}`,
+      'Authorization': `Bearer ${idToken}`,
     },
     'payload' : JSON.stringify({data: ""})
   }).getContentText();
@@ -370,7 +373,8 @@ async function loginToFirebase() {
  */
 function main() {
   try {
-    const gameInfo = getGameInfo();
+    const idToken = loginToFirebase();
+    const gameInfo = getGameInfo(idToken);
     console.log(gameInfo);
     const organizedGameInfo = organizeGameInfo(gameInfo);
     console.log(organizedGameInfo);
