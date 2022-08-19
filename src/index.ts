@@ -59,6 +59,7 @@ function getGameInfo(idToken: string): ResultType {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': `Bearer ${idToken}`,
     },
+    'payload' : JSON.stringify({data: ""})
   }).getContentText();
   const gameInfo: ResultType = JSON.parse(rawGameInfo);
   return gameInfo;
