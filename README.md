@@ -1,5 +1,8 @@
 # mynews
 
+[Cloud Functions](https://github.com/BaseW/mynews/actions/workflows/deploy_cloud_functions.yml/badge.svg)
+[deploy_gas](https://github.com/BaseW/mynews/actions/workflows/deploy_gas.yml/badge.svg)
+
 最近チェックしたいものを通知してくれるもの
 ex. プロ野球の結果など
 
