@@ -4,3 +4,4 @@ node_modules/
 webhook_test*
 .env
 firebase-debug.log
+*json

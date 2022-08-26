@@ -54,6 +54,8 @@ type SlackPayloadType = {
  * @returns {ResultType}
  */
 function getGameInfo(idToken: string): ResultType {
+  console.log(`Bearer ${idToken}`);
+  console.log(FIREBASE_FUNCTIONS_URL);
   const rawGameInfo: string = UrlFetchApp.fetch(FIREBASE_FUNCTIONS_URL, {
     'headers': {
       'Content-Type': 'application/json; charset=UTF-8',
@@ -352,7 +354,7 @@ function notifyAboutGarbage() {
 /**
  * REST API を利用した、Firebase Authentication へのログイン
  */
-async function loginToFirebase() {
+function loginToFirebase() {
   const loginResponse = UrlFetchApp.fetch(FIREBASE_AUTH_LOGIN_URL, {
     'headers': {
         'Content-Type': 'application/json; charset=UTF-8',
@@ -364,7 +366,10 @@ async function loginToFirebase() {
       'returnSecureToken': true,
     })
   });
-  const { idToken } = loginResponse;
+  const parsedResponse = JSON.parse(loginResponse.getContentText());
+  const { idToken } = parsedResponse;
+  console.log(parsedResponse);
+  console.log(idToken);
   return idToken;
 }
 
