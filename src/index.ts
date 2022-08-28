@@ -12,6 +12,10 @@ const GARBAGE_THURSDAY = PropertiesService.getScriptProperties().getProperty("GA
 const GARBAGE_FRIDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_FRIDAY");
 const GARBAGE_SATURDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SATURDAY");
 const GARBAGE_SUNDAY = PropertiesService.getScriptProperties().getProperty("GARBAGE_SUNDAY");
+const FIREBASE_AUTH_EMAIL = PropertiesService.getScriptProperties().getProperty("FIREBASE_AUTH_EMAIL");
+const FIREBASE_AUTH_PASSWORD =
+	PropertiesService.getScriptProperties().getProperty("FIREBASE_AUTH_PASSWORD");
+const FIREBASE_AUTH_LOGIN_URL = PropertiesService.getScriptProperties().getProperty("FIREBASE_AUTH_LOGIN_URL");
 
 type ResultType = {
   dateInfo: string;
@@ -49,8 +53,16 @@ type SlackPayloadType = {
  * 試合情報の取得
  * @returns {ResultType}
  */
-function getGameInfo(): ResultType {
-  const rawGameInfo: string = UrlFetchApp.fetch(FIREBASE_FUNCTIONS_URL).getContentText();
+function getGameInfo(idToken: string): ResultType {
+  console.log(`Bearer ${idToken}`);
+  console.log(FIREBASE_FUNCTIONS_URL);
+  const rawGameInfo: string = UrlFetchApp.fetch(FIREBASE_FUNCTIONS_URL, {
+    'headers': {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': `Bearer ${idToken}`,
+    },
+    'payload' : JSON.stringify({data: ""})
+  }).getContentText();
   const gameInfo: ResultType = JSON.parse(rawGameInfo);
   return gameInfo;
 }
@@ -340,11 +352,34 @@ function notifyAboutGarbage() {
 }
 
 /**
+ * REST API を利用した、Firebase Authentication へのログイン
+ */
+function loginToFirebase() {
+  const loginResponse = UrlFetchApp.fetch(FIREBASE_AUTH_LOGIN_URL, {
+    'headers': {
+        'Content-Type': 'application/json; charset=UTF-8',
+    },
+    'method': 'POST',
+    'payload': JSON.stringify({
+      'email': FIREBASE_AUTH_EMAIL,
+      'password': FIREBASE_AUTH_PASSWORD,
+      'returnSecureToken': true,
+    })
+  });
+  const parsedResponse = JSON.parse(loginResponse.getContentText());
+  const { idToken } = parsedResponse;
+  console.log(parsedResponse);
+  console.log(idToken);
+  return idToken;
+}
+
+/**
  * メイン関数
  */
 function main() {
   try {
-    const gameInfo = getGameInfo();
+    const idToken = loginToFirebase();
+    const gameInfo = getGameInfo(idToken);
     console.log(gameInfo);
     const organizedGameInfo = organizeGameInfo(gameInfo);
     console.log(organizedGameInfo);
