@@ -3,7 +3,7 @@ import * as admin from "firebase-admin";
 import * as puppeteer from "puppeteer";
 import {Page, ElementHandle} from "puppeteer";
 import {GameInfo, ParsedScoreInfo, ResultType} from "./types";
-import { applicationDefault } from "firebase-admin/app";
+import {applicationDefault} from "firebase-admin/app";
 
 const NPB_OFFICIAL_URL = "https://npb.jp/";
 const DATE_ELEMENT_WRAPPER_SELECTOR = ".date";
@@ -13,7 +13,7 @@ const STATE_ELEMENT_SELECTOR = ".state";
 const FUNCTION_REGION = "asia-northeast1";
 
 admin.initializeApp({
-  credential: applicationDefault()
+  credential: applicationDefault(),
 });
 
 /**
