@@ -3,6 +3,7 @@ import * as admin from "firebase-admin";
 import * as puppeteer from "puppeteer";
 import {Page, ElementHandle} from "puppeteer";
 import {GameInfo, ParsedScoreInfo, ResultType} from "./types";
+import { applicationDefault } from "firebase-admin/app";
 
 const NPB_OFFICIAL_URL = "https://npb.jp/";
 const DATE_ELEMENT_WRAPPER_SELECTOR = ".date";
@@ -10,6 +11,10 @@ const GAME_ELEMENT_WRAPPER_SELECTOR = ".score_box";
 const SCORE_ELEMENT_SELECTOR = ".score";
 const STATE_ELEMENT_SELECTOR = ".state";
 const FUNCTION_REGION = "asia-northeast1";
+
+admin.initializeApp({
+  credential: applicationDefault()
+});
 
 /**
  * NPB 公式サイトへアクセスする
@@ -232,16 +237,18 @@ async function main() {
 
 const verifyFirebaseToken = async (authorizationHeader: string | undefined) => {
   if (!authorizationHeader) {
-    throw new Error('not authorized');
+    console.error("not authorized");
+    throw new Error("not authorized");
   }
   try {
     const token = authorizationHeader.split(" ")[1];
     await admin.auth().verifyIdToken(token);
   } catch (e) {
-    throw new Error('not authorized');
+    console.error("not authorized");
+    throw new Error("not authorized");
   }
   return;
-}
+};
 
 export const scrapingNPB = functions.region(FUNCTION_REGION)
     .runWith({
