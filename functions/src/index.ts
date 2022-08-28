@@ -1,4 +1,5 @@
 import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
 import * as puppeteer from "puppeteer";
 import {Page, ElementHandle} from "puppeteer";
 import {GameInfo, ParsedScoreInfo, ResultType} from "./types";
@@ -229,14 +230,32 @@ async function main() {
   }
 }
 
+const verifyFirebaseToken = async (authorizationHeader: string | undefined) => {
+  if (!authorizationHeader) {
+    throw new Error('not authorized');
+  }
+  try {
+    const token = authorizationHeader.split(" ")[1];
+    await admin.auth().verifyIdToken(token);
+  } catch (e) {
+    throw new Error('not authorized');
+  }
+  return;
+}
+
 export const scrapingNPB = functions.region(FUNCTION_REGION)
     .runWith({
       // Ensure the function has enough memory and time
       // to process large files
       timeoutSeconds: 60,
       memory: "512MB",
+      minInstances: 0,
+      maxInstances: 1,
     })
-    .https.onCall(async (data, context) => {
+    .https.onRequest(async (req, res) => {
+      const headers = req.headers;
+      const authorizationHeader = headers.authorization;
+      verifyFirebaseToken(authorizationHeader);
       const result = await main();
-      return result;
+      res.send(result);
     });
